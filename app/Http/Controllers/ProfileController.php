@@ -3,25 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
+    /**
+     * Menampilkan profil publik pengguna.
+     */
     public function show($id)
     {
         $user = User::findOrFail($id);
 
-        // Hitung jumlah konten
         $karya = $user->works()->where('type', 'karya')->get();
         $mading = $user->works()->where('type', 'mading')->get();
-
         $allContents = $karya->merge($mading);
 
         return view('profile.show', compact('user', 'karya', 'mading', 'allContents'));
     }
 
+    /**
+     * Menampilkan form edit profil (hanya pemilik profil).
+     */
     public function edit($id)
     {
         $user = User::findOrFail($id);
@@ -33,6 +37,9 @@ class ProfileController extends Controller
         return view('profile.edit', compact('user'));
     }
 
+    /**
+     * Memperbarui data profil.
+     */
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -41,19 +48,26 @@ class ProfileController extends Controller
             abort(403, 'Tidak diizinkan.');
         }
 
+        // Validasi input
         $request->validate([
             'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'bio' => 'nullable|string|max:500',
-            'profile_photo' => 'nullable|image|max:2048',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'email.unique' => 'Email ini sudah digunakan oleh pengguna lain.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
         ]);
 
-        // Update data
+        // Simpan data dasar
         $user->update([
             'name' => $request->name,
+            'email' => $request->email,
             'bio' => $request->bio,
         ]);
 
-        // Handle foto profil
+        // Handle upload foto profil
         if ($request->hasFile('profile_photo')) {
             // Hapus foto lama jika ada
             if ($user->profile_photo) {
@@ -65,6 +79,7 @@ class ProfileController extends Controller
             $user->update(['profile_photo' => $path]);
         }
 
-        return redirect('/profile/' . $user->id)->with('success', 'Profil berhasil diperbarui!');
+        return redirect()->route('profile.show', $user->id)
+                         ->with('success', 'Profil berhasil diperbarui!');
     }
 }

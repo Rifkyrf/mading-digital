@@ -9,35 +9,57 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // Tampilkan form login
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    // Proses login
     public function login(Request $request)
     {
         $request->validate([
-            'nis' => 'required|string',
+            'identifier' => 'required|string',
             'password' => 'required|string',
+            'login_as' => 'required|in:internal_nis,internal_email,guest',
         ]);
 
-        // Cari user berdasarkan NIS
-        $user = User::where('nis', $request->nis)->first();
+        $identifier = $request->identifier;
+        $password = $request->password;
+        $loginAs = $request->login_as;
 
-        if ($user && Hash::check($request->password, $user->password)) {
-            Auth::login($user); // ✅ login dengan objek user
+        $user = null;
+
+        if ($loginAs === 'internal_nis') {
+            $user = User::where('nis', $identifier)
+                        ->whereIn('role', ['siswa', 'guru', 'admin'])
+                        ->first();
+        } elseif ($loginAs === 'internal_email') {
+            $user = User::where('email', $identifier)
+                        ->whereIn('role', ['siswa', 'guru', 'admin'])
+                        ->first();
+        } else {
+            // guest
+            $user = User::where('email', $identifier)
+                        ->where('role', 'guest')
+                        ->first();
+        }
+
+        if ($user && Hash::check($password, $user->password)) {
+            Auth::login($user);
             $request->session()->regenerate();
             return redirect('/dashboard')->with('success', 'Login berhasil! Selamat datang, ' . $user->name);
         }
 
+        $errorMessage = match($loginAs) {
+            'internal_nis' => 'NIS atau password salah.',
+            'internal_email' => 'Email atau password salah (untuk akun guru/siswa/admin).',
+            default => 'Email atau password salah.',
+        };
+
         return back()->withErrors([
-            'nis' => 'NIS atau password salah.',
-        ])->withInput($request->only('nis'));
+            'identifier' => $errorMessage,
+        ])->withInput($request->only('identifier', 'login_as'));
     }
 
-    // Logout
     public function logout(Request $request)
     {
         Auth::logout();

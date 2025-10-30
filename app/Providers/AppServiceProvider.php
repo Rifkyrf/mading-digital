@@ -18,4 +18,8 @@ class RouteServiceProvider extends ServiceProvider // <--- HAPUS MULAI DARI SINI
 {
     public const HOME = '/home'; // atau '/dashboard'
     // ... semua fungsi di dalamnya ...
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 39a5d80d32e69356f1a2609e696d0a6746fb67a5

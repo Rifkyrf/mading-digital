@@ -22,6 +22,9 @@
                                  class="rounded-circle mx-auto"
                                  style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #0d47a1;">
                             <input type="file" name="profile_photo" class="form-control mt-2" accept="image/*">
+                            @error('profile_photo')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <!-- Nama -->
@@ -29,6 +32,19 @@
                             <label for="name" class="form-label">Nama</label>
                             <input type="text" name="name" id="name" class="form-control form-control-lg"
                                    value="{{ old('name', $user->name) }}" required>
+                            @error('name')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" name="email" id="email" class="form-control form-control-lg"
+                                   value="{{ old('email', $user->email) }}" required>
+                            @error('email')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <!-- Bio -->
@@ -36,6 +52,9 @@
                             <label for="bio" class="form-label">Bio (Opsional)</label>
                             <textarea name="bio" id="bio" class="form-control" rows="3"
                                       placeholder="Jelaskan dirimu...">{{ old('bio', $user->bio) }}</textarea>
+                            @error('bio')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="d-flex justify-content-between">

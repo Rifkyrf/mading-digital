@@ -9,6 +9,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\RegisteredUserController;
+use App\Http\Controllers\OsisController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -106,3 +110,17 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/admin/users/{id}', [AdminController::class, 'update'])->name('admin.update');
     Route::delete('/admin/users/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
 });
+// === Halaman Publik OSIS ===
+Route::get('/osis', [PageController::class, 'osis'])->name('osis.index');
+
+// === Kelola OSIS (hanya admin/guru) ===
+Route::middleware(['auth', 'role:admin,guru'])->prefix('admin')->name('osis.')->group(function () {    Route::get('/osis', [OsisController::class, 'manage'])->name('manage');
+    Route::get('/osis/create', [OsisController::class, 'create'])->name('create');
+    Route::post('/osis', [OsisController::class, 'store'])->name('store');
+    Route::get('/osis/{member}/edit', [OsisController::class, 'edit'])->name('edit');
+    Route::put('/osis/{member}', [OsisController::class, 'update'])->name('update');
+    Route::delete('/osis/{member}', [OsisController::class, 'destroy'])->name('destroy');
+});
+
+Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+Route::post('/register', [RegisteredUserController::class, 'store']);

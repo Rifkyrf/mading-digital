@@ -37,9 +37,12 @@
                         <i class="fas fa-sign-in-alt me-1"></i> Login
                     </a>
                 @endif
-                <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">
+                <a href="{{ route('osis.index') }}" class="btn btn-outline-light btn-sm">
                     <i class="fas fa-sign-in-alt me-1"></i> Osis
                 </a>
+                {{-- <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-sign-in-alt me-1"></i> Login
+                </a> --}}
             </div>
         </div>
     </nav>
